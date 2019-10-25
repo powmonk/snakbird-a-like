@@ -36,6 +36,7 @@
 		<img id="apple" src="images/apple.png" alt="dead" style="display:none">
 		<img id="santa_head_up" src="images/santa_head_up.png" alt="santa" style="display:none">
 		<img id="santa_torso_up" src="images/santa_torso_up.png" alt="santa" style="display:none">
+		<img id="santa_corner" src="images/santa_torso_corner.png" alt="santa" style="display:none">
 		<img id="santa_feet_up" src="images/santa_feet_up.png" alt="santa" style="display:none">
 		<img id="log_tile" src="images/log.png" alt="logTile" style="display:none">
 		<img id="board_tile" src="images/boards.png" alt="boardTile" style="display:none">
@@ -83,6 +84,7 @@
 		var apple 			= document.getElementById('apple');
 		var santa_head_up 	= document.getElementById('santa_head_up');
 		var santa_torso_up 	= document.getElementById('santa_torso_up');
+		var santa_corner 	= document.getElementById('santa_corner');
 		var santa_feet_up 	= document.getElementById('santa_feet_up');
 		var log_tile 		= document.getElementById('log_tile');
 		var board_tile 		= document.getElementById('board_tile');
@@ -114,7 +116,7 @@
 			[00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00],
-			[00,00,00,00,00,00,00,00,00,00,02,-1,-2,-2,01,-2,01,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00],
+			[00,01,00,01,00,01,00,01,00,01,02,-1,-2,-2,01,-2,01,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00],
 			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01]
 		];		
 		var levelXSize 		= t2p(level001[1].length);
@@ -239,7 +241,7 @@
 					case 0:
 						//rightway up
 						if(player.y[1] === player.y[i]+1){
-							ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);	
+							ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);	
 							break;
 						}
 						
@@ -248,17 +250,25 @@
 							//ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
 							//mirrorImage(ctx, entity, true, false, entity.frame);
 						
-							flipImage(santa_head_up, ctx, false, true, false, 0, player.x[i]*32,player.y[i]*32);
+							flipImage(santa_head_up, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
 						
 						//face left
 						if(player.x[1] === player.x[i]+1){
 							//rotateImage(santa_head_up, player.x[i]*32, player.y[i]*32, 1, 45);
-							flipImage(santa_feet_up, ctx, false, true, true, 45, player.x[i]*32,player.y[i]*32);
+							flipImage(santa_head_up, ctx, 'left', t2p(player.x[i]),t2p(player.y[i]));
+							break;
 						}
 
-						ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);	
+						//face right
+						if(player.x[1] === player.x[i]-1){
+							//rotateImage(santa_head_up, player.x[i]*32, player.y[i]*32, 1, 45);
+							flipImage(santa_head_up, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
+							break;
+						}
+
+						ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);	
 						
 						//drawTile(santa_head_up, player.x[i], player.y[i]*32);
 						break;
@@ -269,17 +279,102 @@
 						if(player.y[i-1] === player.y[i]+1){
 							//ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
 							//mirrorImage(ctx, entity, true, false, entity.frame);
-							console.log("should be flipped now");
-							flipImage(santa_feet_up, ctx, false, true, false, 0, player.x[i]*32,player.y[i]*32);
+							flipImage(santa_feet_up, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
-					
-						ctx.drawImage(santa_feet_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
+						
+						//right
+						if(player.x[i-1] === player.x[i]+1){
+							flipImage(santa_feet_up, ctx, 'right', player.x[i]*32,player.y[i]*32);
+							break;
+						};
+						
+						//left
+						if(player.x[i-1] === player.x[i]-1){
+							flipImage(santa_feet_up, ctx, 'left', player.x[i]*32,player.y[i]*32);
+							break;
+						};
+												
+						ctx.drawImage(santa_feet_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
 						//drawTile(santa_feet_up, player.x[i], player.y[i]);
 						break;
 					//torso
 					default:
-						ctx.drawImage(santa_torso_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
+						let top 	= false;
+						let bottom 	= false;
+						let left 	= false;
+						let right 	= false;
+
+						//console.log("y[i]: " + (player.y[i]-1));
+						//console.log("y[i-1]: " +player.y[i-1]);
+						
+						if(player.y[i]-1 == player.y[i-1])
+							top=true;
+						if(player.y[i]+1 == player.y[i+1])
+							bottom=true;
+						if(player.x[i]-1 == player.x[i-1])
+							left=true;
+						if(player.x[i]+1 == player.x[i+1])
+							right=true;
+						//
+						////if(locations != ("top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right))
+						console.log("i:"+i+", top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right);
+						////
+						////var locations = "top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right;
+					
+						let isVertical 		= false;
+						let isHorizontal 	= false;
+						let isCorner 		= false;
+						//we need to check if this is a corner piece
+						//first check if it connects the trailing and leading pieces vertically
+						if(player.x[i-1] == player.x[i] && player.x[i+1] == player.x[i]){
+							isVertical = true;
+						}
+						
+						//then check if it connects them horizontally
+						if(player.y[i-1] == player.y[i] && player.y[i+1] == player.y[i]){
+							isHorizontal = true;
+						}
+						
+						//if it doesn't then it's a corner piece
+						isCorner = !isVertical && !isHorizontal ? true:false;
+						
+						if(isHorizontal){
+							flipImage(santa_torso_up, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
+							break;
+						};
+						
+						if(isCorner){
+							if(top == true && right == true){
+								//this is top right
+								flipImage(santa_corner, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
+								break;
+							}
+						
+							//if(top && left){
+							//	//this is top left
+							//	ctx.drawImage(santa_corner, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
+							//	break;
+							//}
+							//if(top && right){
+							//	flipImage(santa_corner, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
+							//	break;
+							//}
+							//if(top && left)
+							//	ctx.drawImage(santa_corner, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
+							//if(bottom && left)
+							//	flipImage(santa_corner, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
+								
+							break;
+						}
+						
+						////now we check what type of corner piece to render
+						//if(isCorner){
+						//	if(
+						//	
+						//};
+						
+						ctx.drawImage(santa_torso_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
 						//drawTile(santa_torso_up, player.x[i], player.y[i]);
 						break;
 				};
@@ -287,56 +382,43 @@
 
 		};
 		
-		function rotateImage(image, x, y, scale, rotation){
-			ctx.setTransform(scale, 0, 0, scale, x, y); // sets scale and origin
-			ctx.rotate(rotation);
-			ctx.drawImage(image, -image.width / 2, -image.height / 2);
-		} 
-		
-		function flipImage(image, ctx, flipH, flipV, rotate, rotation, x, y) {
-			var scaleH = flipH ? -1 : 1, // Set horizontal scale to -1 if flip horizontal
-				scaleV = flipV ? -1 : 1, // Set verical scale to -1 if flip vertical
-				posX = flipH ? 32 * -1 : 0, // Set x position to -100% if flip horizontal 
-				posY = flipV ? 32 * -1 : 0; // Set y position to -100% if flip vertical
-			
+		function flipImage(image, ctx, flip, x, y) {
+				
 			ctx.save(); // Save the current state
-			ctx.scale(scaleH, scaleV); // Set scale to flip the image
-			if(rotate){
-				ctx.rotate(rotation);
-				ctx.drawImage(image, posX + x, posY - y, -player.width, 32); // draw the image
-			}else{
-				ctx.drawImage(image, posX + x, posY - y, player.width, 32); // draw the image
-			}
+			
+			switch(flip){
+				case 'right':
+					rotation = 90;
+					ctx.translate(t2p(1),t2p(0));
+					rotation = rotation / 180 * Math.PI;
+					ctx.rotate(rotation);
+					ctx.drawImage(image, y, x*-1, TILE, TILE); // draw the image
+				case 'left':
+					rotation = 90;
+					ctx.translate(t2p(1),t2p(0));
+					rotation = rotation / 180 * Math.PI;
+					ctx.rotate(rotation);
+					ctx.drawImage(image, y, x*-1, TILE, TILE); // draw the image
+				
+				case 'down':
+					var scaleH =  1; // Set horizontal scale to -1 if flip horizontal
+					var	scaleV = -1; // Set verical scale to -1 if flip vertical
+					var posX = t2p(-1) ; // Set x position to -100% if flip horizontal 
+					var posY = t2p(-1);// Set y position to -100% if flip vertical
+					ctx.scale(-1, -1); // Set scale to flip the image
+			        ctx.drawImage(image, posX - x, posY - y, TILE, TILE); // draw the image
+
+			};
+					
+			
+				//ctx.scale(scaleH, scaleV); // Set scale to flip the image
+				//ctx.drawImage(image,posX + x, posY - y, TILE, TILE); // draw the image
 			//ctx.drawImage(image, player.width,0,32,32,player.x[0]*32,player.y[0]*32,player.width,player.height);
 			ctx.restore(); // Restore the last saved state
 		};
-
-		function imageFlip(ctx, entity, horizontal, vertical, inputImage){
 		
-			//var image = image;
-			let x = entity.x;
-			let y = entity.y;
-			
-			ctx.save();  // save the current canvas state
-			
-			var a = horizontal ? -1 : 1; // set the direction of x axis
-			var b = 0; 
-			var c = 0;
-			var d = vertical ? -1 : 1; //// set the direction of y axis
-			var e = horizontal ? x + entity.width : x; // set the x origin
-			var f = vertical   ? y + entity.height: y; // set the y origin
-			
-			ctx.setTransform(a,b,c,d,e,f);
-			ctx.scale(-1,1);
-			ctx.drawImage(	inputImage,			//the image
-							64,				//dx
-							64
-							);
-			//ctx.drawImage(image,0,0);
-			ctx.restore(); // restore the state as it was when this function was called
-		};		
+		
 
-					
 		function mirrorImage(ctx, entity, horizontal, vertical, frame){
 		
 			var image = entity.image;
@@ -602,10 +684,10 @@
 		function onkey(ev, key, down) {
 			if(down){
 				switch(key) {
-					case KEY.LEFT:  player.moving = true; player.face = "left";/*console.log("you pressed the left key, player x:"+player.x)*/;break;
+					case KEY.LEFT:  player.moving = true; player.face = "left";	/*console.log("you pressed the left key, player x:"+player.x)*/	;break;
 					case KEY.RIGHT: player.moving = true; player.face = "right";/*console.log("you pressed the right key, player x:"+player.x)*/;break;
-					case KEY.UP: 	player.moving = true; player.face = "up";/*console.log("you pressed the left key, player x:"+player.x)*/;break;
-					case KEY.DOWN: 	player.moving = true; player.face = "down";/*console.log("you pressed the right key, player x:"+player.x)*/;break;
+					case KEY.UP: 	player.moving = true; player.face = "up";	/*console.log("you pressed the left key, player x:"+player.x)*/	;break;
+					case KEY.DOWN: 	player.moving = true; player.face = "down";	/*console.log("you pressed the right key, player x:"+player.x)*/;break;
 				};
 			}else{
 				player.moving =  false;
@@ -645,6 +727,8 @@
 					player.y[i]+=1;
 				};
 			};
+			
+			return player.falling;
 		
 		};
 		
@@ -694,40 +778,39 @@
 
 			isFalling();
 		
-			if(player.moving){
+			if(player.moving &&  !isFalling()){
 
 
 				switch(player.face){
 					case "left":
 						if(playerCanMove()){
 							tail();
-							player.x[0]-=1; console.log("left"); 
+							player.x[0]-=1; 
 						};
 						break;
 					case "right":	
 						if(playerCanMove()){
 							tail();
-							player.x[0]+=1;
-							console.log("left");
+							player.x[0]+=1;							
 						}; 
 						break;
 					case "down":
 						if(playerCanMove()){
-							tail();player.y[0]+=1; console.log("down"); break;
+							tail();player.y[0]+=1; break;
 						};
 					case "up":
 						if(playerCanMove()){
-							tail();player.y[0]-=1; console.log("up"); break;
+							tail();player.y[0]-=1; break;
 						};
 				};
 				
-				if(level001[player.y[0]][player.x[0]] === -1){
-					player.length+=1;
-					level001[player.y[0]][player.x[0]] = -2;
-				}
 				
 				
 				player.moving = false;
+			};
+			if(level001[player.y[0]][player.x[0]] === -1){
+				player.length+=1;
+				level001[player.y[0]][player.x[0]] = -2;
 			};
 			
 		};
