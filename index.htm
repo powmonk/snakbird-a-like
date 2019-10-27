@@ -2,7 +2,7 @@
 <html lang="en"> 
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<title>Test Game</title>
+		<title>Santapede</title>
 		<style type="text/css">
 			canvas {
 				width: 1024px;
@@ -35,6 +35,7 @@
 		<img id="dead" src="images/dead.png" alt="dead" style="display:none">
 		<img id="apple" src="images/apple.png" alt="dead" style="display:none">
 		<img id="santa_head_up" src="images/santa_head_up.png" alt="santa" style="display:none">
+		<img id="santa_arms_up" src="images/santa_arms_up.png" alt="santa" style="display:none">
 		<img id="santa_torso_up" src="images/santa_torso_up.png" alt="santa" style="display:none">
 		<img id="santa_corner" src="images/santa_torso_corner.png" alt="santa" style="display:none">
 		<img id="santa_feet_up" src="images/santa_feet_up.png" alt="santa" style="display:none">
@@ -84,6 +85,7 @@
 		var apple 			= document.getElementById('apple');
 		var santa_head_up 	= document.getElementById('santa_head_up');
 		var santa_torso_up 	= document.getElementById('santa_torso_up');
+		var santa_arms_up 	= document.getElementById('santa_arms_up');
 		var santa_corner 	= document.getElementById('santa_corner');
 		var santa_feet_up 	= document.getElementById('santa_feet_up');
 		var log_tile 		= document.getElementById('log_tile');
@@ -107,9 +109,9 @@
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,02,-1,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
-			[00,00,00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00,00,00],
-			[00,00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,02,02,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,02,02,02,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,02,02,02,02,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,02,-1,-1,-2,-2,-2,-2,-2,02,-2,02,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,02,02,02,02,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00],
@@ -206,19 +208,6 @@
 				
 				
 				switch(entity.face){
-					//case "left":	
-					//	ctx.drawImage(entity.image, entity.width*entity.frame,0,entity.width,entity.height,entity.x,entity.y,entity.width,entity.height);
-					// 	break;
-					//case "right":	
-					//	ctx.drawImage(entity.image, entity.width*entity.frame,0,entity.width,entity.height,entity.x,entity.y,entity.width,entity.height);
-					//	//mirrorImage(ctx, entity, true, false, entity.frame);
-					//	break;
-					//case "down":	
-					//	ctx.drawImage(entity.image, entity.width*entity.frame,0,entity.width,entity.height,entity.x,entity.y,entity.width,entity.height);
-					//	break;
-					//case "up":		
-					//	ctx.drawImage(entity.image, entity.width*entity.frame,0,entity.width,entity.height,entity.x,entity.y,entity.width,entity.height);
-					//	break;		
 					case "left":	
 					case "right":	
 					case "down":	
@@ -229,12 +218,11 @@
 						//};
 						break;									
 				};
-				
 			};
 		};	
 				
 		function drawPlayer(){
-			for(i=0;i<player.length;i++){
+			for(i=player.length-1;i>=0;i--){
 				switch(i){
 					
 					//head
@@ -242,6 +230,7 @@
 						//rightway up
 						if(player.y[1] === player.y[i]+1){
 							ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);	
+							
 							break;
 						}
 						
@@ -268,8 +257,6 @@
 							break;
 						}
 
-						ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);	
-						
 						//drawTile(santa_head_up, player.x[i], player.y[i]*32);
 						break;
 						
@@ -300,31 +287,12 @@
 						break;
 					//torso
 					default:
-						let top 	= false;
-						let bottom 	= false;
-						let left 	= false;
-						let right 	= false;
-
-						//console.log("y[i]: " + (player.y[i]-1));
-						//console.log("y[i-1]: " +player.y[i-1]);
-						
-						if(player.y[i]-1 == player.y[i-1])
-							top=true;
-						if(player.y[i]+1 == player.y[i+1])
-							bottom=true;
-						if(player.x[i]-1 == player.x[i-1])
-							left=true;
-						if(player.x[i]+1 == player.x[i+1])
-							right=true;
-						//
-						////if(locations != ("top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right))
-						console.log("i:"+i+", top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right);
-						////
-						////var locations = "top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right;
-					
 						let isVertical 		= false;
 						let isHorizontal 	= false;
 						let isCorner 		= false;
+
+						let isArmSegment	= i===Math.floor(player.length/4) || 1 ? true:false;
+						console.log(Math.floor(player.length/4));
 						//we need to check if this is a corner piece
 						//first check if it connects the trailing and leading pieces vertically
 						if(player.x[i-1] == player.x[i] && player.x[i+1] == player.x[i]){
@@ -341,40 +309,82 @@
 						
 						if(isHorizontal){
 							flipImage(santa_torso_up, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
+							if(isArmSegment)
+								flipImage(santa_arms_up, ctx, 'right', t2p(player.x[i]), t2p(player.y[i]));
 							break;
 						};
 						
 						if(isCorner){
-							if(top == true && right == true){
+								  let above 	= false;
+								  let below 	= false;
+								  let left 	= false;
+								  let right 	= false;
+
+								  //console.log("y[i]-1: " + (player.y[i]-1));
+								  //console.log("y[i-1]: " + (player.y[i-1]));
+								  //console.log(x0,y,y3	
+
+								  //check if the prev/next snake segment is above
+								  let tileX = player.x[i];
+								  let tileY = player.y[i];
+
+								  //ABOVE
+								  if(tileY - 1 === player.y[i-1] && tileX === player.x[i-1])
+										  above = true; //head above current segment
+								  if(tileY - 1 === player.y[i+1] && tileX === player.x[i+1])
+										  above = true; //feet above current segment
+								  
+								  //BELOW	
+								  if(tileY + 1 === player.y[i-1] && tileX === player.x[i-1])
+										  below = true; //head below current segment
+								  if(tileY + 1 === player.y[i+1] && tileX === player.x[i+1])
+										  below = true; //feet below current segment
+								  
+								  //LEFT
+								  if(tileX - 1 === player.x[i-1] && tileY === player.y[i-1])
+									  left = true; // console.log("head left of current segment");
+								  
+								  if(tileX - 1 === player.x[i+1] && tileY === player.y[i+1])
+									  left = true; // console.log("head left of current segment");
+		  i
+								  //RIGHT
+								  if(tileX + 1 === player.x[i-1] && tileY === player.y[i-1])
+									  right = true; // console.log("head left of current segment");
+								  
+								  if(tileX + 1 === player.x[i+1] && tileY === player.y[i+1])
+									  right = true; // console.log("head left of current segment");
+
+								  ////if(locations != ("top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right))
+								  //console.log("i:"+i+", above:"+above+", below:"+below+", left:"+left+", right:"+right);
+
+							if(above && right){
 								//this is top right
 								flipImage(santa_corner, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
+								flipImage(santa_arms_up, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
 								break;
 							}
 						
-							//if(top && left){
-							//	//this is top left
-							//	ctx.drawImage(santa_corner, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
-							//	break;
-							//}
-							//if(top && right){
-							//	flipImage(santa_corner, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
-							//	break;
-							//}
-							//if(top && left)
-							//	ctx.drawImage(santa_corner, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
-							//if(bottom && left)
-							//	flipImage(santa_corner, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
-								
-							break;
+							if(below && right){
+								flipImage(santa_corner, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
+								flipImage(santa_arms_up, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
+								break;
+							}
+							if(above && left){
+								ctx.drawImage(santa_corner, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
+								ctx.drawImage(santa_arms_up, player.width*player.frame,0,player.width+15,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
+								break;
+							}
+							if(below && left){
+								flipImage(santa_corner, ctx, 'left', t2p(player.x[i]),t2p(player.y[i]));
+								flipImage(santa_arms_up, ctx, 'left', t2p(player.x[i]),t2p(player.y[i]));
+								break;
+							}
 						}
-						
-						////now we check what type of corner piece to render
-						//if(isCorner){
-						//	if(
-						//	
-						//};
-						
+												
 						ctx.drawImage(santa_torso_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
+
+					if(isArmSegment)
+						ctx.drawImage(santa_arms_up, player.width*player.frame,0,47,player.height,t2p(player.x[i]),t2p(player.y[i])-10,player.width,player.height);	
 						//drawTile(santa_torso_up, player.x[i], player.y[i]);
 						break;
 				};
@@ -393,20 +403,22 @@
 					rotation = rotation / 180 * Math.PI;
 					ctx.rotate(rotation);
 					ctx.drawImage(image, y, x*-1, TILE, TILE); // draw the image
+					break;
 				case 'left':
-					rotation = 90;
-					ctx.translate(t2p(1),t2p(0));
+					rotation = 270;
+					ctx.translate(t2p(0),t2p(1));
 					rotation = rotation / 180 * Math.PI;
 					ctx.rotate(rotation);
-					ctx.drawImage(image, y, x*-1, TILE, TILE); // draw the image
-				
+					ctx.drawImage(image, y*-1, x, TILE, TILE); // draw the image
+					break;
 				case 'down':
 					var scaleH =  1; // Set horizontal scale to -1 if flip horizontal
 					var	scaleV = -1; // Set verical scale to -1 if flip vertical
 					var posX = t2p(-1) ; // Set x position to -100% if flip horizontal 
 					var posY = t2p(-1);// Set y position to -100% if flip vertical
 					ctx.scale(-1, -1); // Set scale to flip the image
-			        ctx.drawImage(image, posX - x, posY - y, TILE, TILE); // draw the image
+			      ctx.drawImage(image, posX - x, posY - y, TILE, TILE); // draw the image
+					break;
 
 			};
 					
@@ -764,9 +776,11 @@
 						return true;
 					};
 					break;
-				case "up":		
-					if(level001[player.y[0]-1][player.x[0]] < 1 && !isTileTail(player.y[0]-1, player.x[0])){
-						return true;
+				case "up":	
+					if(player.y[0]>0){	
+						if(level001[player.y[0]-1][player.x[0]] < 1 && !isTileTail(player.y[0]-1, player.x[0])){
+							return true;
+						};
 					};
 					break;
 			};
