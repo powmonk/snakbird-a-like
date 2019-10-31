@@ -11,6 +11,13 @@
 				margin-left: 0px;
 				margin-top:  0px; 
 			}
+			miniCanvas {
+				width: 1024px;
+				height: 648px;
+				
+				margin-left: 0px;
+				margin-top:  0px; 
+			}
 		</style>
 	</head>
 	<body>
@@ -18,9 +25,14 @@
 		<canvas id="levelCanvas" width="1024" height="648" style="border:0px solid #FF0000;">
 		Guttted mush, your browser's pants.
 		</canvas> 
+		<canvas id="miniCanvas" width="32" height="20" style="border:0px solid #FF0000;display:none">
+		Guttted mush, your browser's pants.
+		</canvas> 
 		</div>
 		
 		<!-- We need to load images this way for the LMS to load them in the right folder-->
+		<img id="level000" width="32" height="20" src="images/level000.png" alt="level000" style="display:none">
+
 		<img id="floor_tile_00" width="32" height="32" src="images/floor_tile_00.png" alt="floor_tile_00" style="display:none">
 		<img id="floor_tile_01" width="32" height="32" src="images/floor_tile_01.png" alt="floor_tile_01" style="display:none">
 		<img id="hit_box" width="32" height="32" src="images/hit_box.png" alt="hit_box"style="display:none">
@@ -46,29 +58,34 @@
 		var COLOR  = { BLACK: '#000000', YELLOW: '#ECD078', SKY: '#8888FF', PINK: '#C02942', PURPLE: '#542437', GREY: '#333', SLATE: '#53777A', WHITE: '#FFFFFF' },
 			COLORS = [ COLOR.BLACK, COLOR.YELLOW, COLOR.SKY, COLOR.PINK, COLOR.PURPLE, COLOR.GREY, COLOR.WHITE ];
 
-		var MAP      = { tileX: 32, tileY: 20 }, // the size of the map (in tiles)
-			TILE     = 32,                 	// the size of each tile (in game pixels)
-			METER    = TILE,               	// abitrary choice for 1m
-			//GRAVITY  = METER * 9.8 * 6,   // very exagerated gravity (6x)
-			GRAVITY  = 7,    				//I'm too lazy to work out the physics so I'm just using fixed values for now
-			MAXDX    = METER * 20,         	// max horizontal speed (20 tiles per second)
-			MAXDY    = METER * 60,         	// max vertical speed   (60 tiles per second)
-			//ACCEL    = MAXDX * 2,         // horizontal acceleration -  take 1/2 second to reach maxdx
-			ACCEL    = 5,          			//I'm too lazy to work out the physics so I'm just using fixed values for now
-			FRICTION = MAXDX * 6,          	// horizontal friction     -  take 1/6 second to stop from maxdx
-			JUMP     = METER * 1500;       	// (a large) instantaneous jump impulse
-			KEY      = { SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
+		var MAP      	= { tileX: 32, tileY: 20 }, // the size of the map (in tiles)
+			TILE     	= 32,                 	// the size of each tile (in game pixels)
+			METER    	= TILE,               	// abitrary choice for 1m
+			//GRAVITY  	= METER * 9.8 * 6,   // very exagerated gravity (6x)
+			GRAVITY 	= 7,    				//I'm too lazy to work out the physics so I'm just using fixed values for now
+			MAXDX   	= METER * 20,         	// max horizontal speed (20 tiles per second)
+			MAXDY   	= METER * 60,         	// max vertical speed   (60 tiles per second)
+			//ACCEL 	  = MAXDX * 2,         // horizontal acceleration -  take 1/2 second to reach maxdx
+			ACCEL   	= 5,          			//I'm too lazy to work out the physics so I'm just using fixed values for now
+			FRICTION	= MAXDX * 6,          	// horizontal friction     -  take 1/6 second to stop from maxdx
+			JUMP    	= METER * 1500;       	// (a large) instantaneous jump impulse
+			KEY     	= { SPACE: 32, LEFT: 37, UP: 38, RIGHT: 39, DOWN: 40 };
 			
 
-		var canvas   = document.getElementById('levelCanvas'),
-			ctx      = canvas.getContext('2d'),
-			width    = canvas.width  = MAP.tileX * TILE,
-			height   = canvas.height = MAP.tileY * TILE;
+		var canvas  	= document.getElementById('levelCanvas'),
+			ctx     	= canvas.getContext('2d'),
+			width   	= canvas.width  = MAP.tileX * TILE,
+			height  	= canvas.height = MAP.tileY * TILE;	
+		
+		var miniCanvas	= document.getElementById('miniCanvas'),
+			miniCtx    	= canvas.getContext('2d');
+			//width    	= canvas.width  = 32,
+			//height   	= canvas.height = 20;
 			
-		var t2p      = function(t)     {return t*TILE;                  },
-			p2t      = function(p)     {return Math.floor(p/TILE);      },
-			cell     = function(x,y)   {return tcell(p2t(x),p2t(y));    },
-			tcell    = function(tx,ty) {return cells[tx + (ty*MAP.tw)]; };
+		var t2p      	= function(t)     {return t*TILE;                  },
+			p2t      	= function(p)     {return Math.floor(p/TILE);      },
+			cell     	= function(x,y)   {return tcell(p2t(x),p2t(y));    },
+			tcell    	= function(tx,ty) {return cells[tx + (ty*MAP.tw)]; };
 		
 		var floor_00 		= document.getElementById('floor_tile_00');
 		var floor_01 		= document.getElementById('floor_tile_01');
@@ -95,11 +112,34 @@
 		var levelX 			= 0;
 		var cloudX 			= 1024;
 		
-		var player 			= {	image:hit_box, x:[], y:[], moving:false, face:"left", length:3, alive:true,frame:0, height:64, width:32, jump:false, fall: false};
+		var player 			= {	goalMet:true, x:[], y:[], moving:false, face:"left", length:3, alive:true,frame:0, height:64, width:32, jump:false, fall: false};
 		var santa			= {image:coin, x:1, y:1, length:2, alive:true};
 		var clouds 			= {x:0,y:0,speed:10};
 
 		var level001 = [
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,02,-2,02,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,-2,02,00,00,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-1,02,-2,02,02,02,00],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-1,-2,-2,-2,-2,-2,02],
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,02,02,-2,02],
+			[00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,02,-2,02],
+			[00,00,00,00,00,00,00,00,00,00,00,00,02,-2,02,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,02,-2,02],
+			[00,00,00,00,00,00,00,00,00,00,00,02,02,-2,02,02,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,02,-2,02],
+			[00,00,02,-2,02,00,00,00,00,00,02,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,02,-2,02],
+			[00,02,02,-2,02,02,00,00,00,02,-2,-2,-2,-2,02,-2,-2,02,00,00,00,00,00,02,-2,-2,02,-2,-2,02,-2,02],
+			[00,02,-1,-2,-2,02,00,00,00,02,-1,-2,-2,-2,02,-2,-2,02,00,00,00,00,00,02,-2,-2,02,-2,-2,02,-2,02],
+			[00,02,-2,02,-2,02,02,00,00,02,-2,-2,02,-2,02,-2,-2,02,00,00,00,00,00,02,02,02,02,-2,-2,-1,-2,02],
+			[00,02,-2,-2,-2,02,02,02,00,02,-1,-2,-2,-2,02,-1,-1,02,00,00,00,00,00,02,02,02,02,-2,02,02,-2,02],
+			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,-2,01]
+		];		
+
+		var level002 = [
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
@@ -120,8 +160,34 @@
 			[00,00,00,00,00,00,00,00,00,00,02,-2,-2,-2,-2,-2,-2,-2,-2,-2,02,00,00,00,00,00,00,00,00,00,00,00],
 			[00,01,00,01,00,01,00,01,00,01,02,-1,-2,-2,01,-2,01,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00],
 			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01]
-		];		
-		var levelXSize 		= t2p(level001[1].length);
+		];
+
+		currentLevel = loadLevel();
+		
+		function loadLevel(){
+			miniCtx.drawImage(level000, 0, 0);
+			var imgData = miniCtx.getImageData(0, 0, 20, 32);
+			var levelToReturn = new Array();
+			for(i=0;i<miniCanvas.height;i++){
+				levelToReturn[i] = new Array();
+				for(j=0;j<miniCanvas.width;j++){
+					//r = imgData.data[i*j];
+					//r = imgData.data[i*j];
+					//g = imgData.data[i*j+1];
+					//g = imgData.data[i*j+1];
+					//b = imgData.data[i*j+2];
+					//b = imgData.data[i*j+2];
+					//a = imgData.data[i*j+3];
+					//a = imgData.data[i*j+3];
+					console.log(imgData.data);
+					levelToReturn[i][j] = imgData.data[ximiniCanvas.width+j*i];
+				};
+			};
+			
+			return levelToReturn;
+		};
+				
+		var levelXSize 		= t2p(currentLevel[1].length);
 
 				
 		if (!window.requestAnimationFrame) {
@@ -141,7 +207,7 @@
 			//player.y = 14 * TILE;
 			
 			for(i=0;i<player.length;i++){
-				player.x[i] = 13;
+				player.x[i] = 8;
 				player.y[i] = i;
 			};
 			
@@ -153,36 +219,13 @@
 		
 		function drawTile(sourceImage, x, y){
 			if(sourceImage.complete){
-				ctx.drawImage(sourceImage, x, y)
+				ctx.drawImage(sourceImage, x, y);
 			}else{
 				ctx.fillStyle = COLOR.PINK;
 				ctx.fillRect(x, y, TILE, TILE);
 			}
 		};
 		
-
-		function getAnimStep(){
-			if(frameDelay<6){
-				frameDelay++;
-				return false;
-			}else{
-				frameDelay = 0;
-				return true;
-			}
-		}
-		
-		function drawCoin(ctx, x=32, y=32){
-			if(coincount < 9 ){
-				ctx.drawImage(coinImage, 32*coincount,0,32,32,x,y,32,32);
-				if(getAnimStep()){
-					coincount++;
-				}
-			}else{
-				coincount=0;
-			};		
-		};
-
-					
 					
 		function updateEntity(entity, ctx){
 			if(entity.y > height){
@@ -292,7 +335,6 @@
 						let isCorner 		= false;
 
 						let isArmSegment	= i===Math.floor(player.length/4) || 1 ? true:false;
-						console.log(Math.floor(player.length/4));
 						//we need to check if this is a corner piece
 						//first check if it connects the trailing and leading pieces vertically
 						if(player.x[i-1] == player.x[i] && player.x[i+1] == player.x[i]){
@@ -428,8 +470,6 @@
 			//ctx.drawImage(image, player.width,0,32,32,player.x[0]*32,player.y[0]*32,player.width,player.height);
 			ctx.restore(); // Restore the last saved state
 		};
-		
-		
 
 		function mirrorImage(ctx, entity, horizontal, vertical, frame){
 		
@@ -454,7 +494,6 @@
 			ctx.drawImage(image, entity.width*frame,0,entity.width,entity.height,0,0,entity.width,entity.height);
 			ctx.restore(); // restore the state as it was when this function was called
 		};		
-		
 	
 		function timestamp() {
 		  if (window.performance && window.performance.now)
@@ -490,69 +529,6 @@
 			return numberToInvert * -1;
 		};	
 
-		//Create rain array
-		var rain = [];
-		
-		var showerSize = 60;
-		
-		//Create a loop which add objects to the rain array
-		function initRain(){
-			for (i=0;i<showerSize;i++)
-				rain.push({
-					x:Math.floor(Math.random() * 1500), 
-					y:Math.floor(Math.random() * 648), 
-					xDrift:Math.floor(Math.random() * 200), 
-					driftDir:Math.floor(Math.random()), 
-				});
-		};
-		
-		//initRain();
-		
-		function droplet(getSet, position, x, y){
-			switch(getSet){
-				case 'set':
-					rain[position].x = x;
-					rain[position].y = y;
-					return;
-				case 'get':
-					//x = drop[position].x;
-					//y = drop[position].y;
-					return [rain[position].x, rain[position].y];
-			};
-		};
-
-		
-		function drawRain(ctx){
-			for(i=0;i<showerSize;i++){
-				ctx.fillStyle = 'rgba('+255+','+255+','+255+',1)';
-				//ctx.fillRect(rain[i].x, rain[i].y, 8,8);
-				ctx.beginPath();
-				ctx.arc(rain[i].x + rain[i].xDrift, rain[i].y, 4, 0, 2 * Math.PI, false);
-				ctx.fill();
-				
-				if(rain[i].xDrift >= 200){
-					rain[i].driftDir = 0;
-				}
-				
-				if(rain[i].xDrift <= 0){
-					rain[i].driftDir = 1;
-				}
-				
-				
-				rain[i].xDrift += rain[i].driftDir === 1 ? 1:-1;
-				
-					
-				if(rain[i].y<648 && rain[i].x>0){
-					rain[i].y+= 0.3;
-					rain[i].x-= 0.5;
-				}else{
-					rain[i].y = 0;
-					rain[i].x = Math.floor(Math.random() * 1500);
-				};
-			};
-		};
-			
-				
 		function drawLevel(ctx){
 			//These two variable set the portions of the screen that trigger scrolling of the level
 			var upperBound = TILE * 22;
@@ -583,7 +559,7 @@
 						let drawY = t2p(y);
 						
 						//console.log(p2t(x + levelX));
-						let character = level001[y][x];
+						let character = currentLevel[y][x];
 						switch(character){
 							case -2:
 								drawTile(board_tile, drawX, drawY);
@@ -624,7 +600,7 @@
 				cloudX = 1300;
 			};
 			
-			
+			player.goalMet = true;
 			
 			//Draw Foreground
 			for(y=0;y<MAP.tileY;y++){
@@ -637,14 +613,14 @@
 						let drawY = t2p(y);
 						
 						//console.log(p2t(x + levelX));
-						let character = level001[y][x+arrayX];
+						let character = currentLevel[y][x+arrayX];
 						switch(character){
 							//default:
 							//	ctx.fillStyle = COLOR.SKY;
 							//	ctx.fillRect(drawX, drawY, TILE, TILE);
 							//	break;
 							case 1:
-								if(drawY > 0 && level001[y-1][x+arrayX] === 0 ){
+								if(drawY > 0 && currentLevel[y-1][x+arrayX] === 0 ){
 									drawTile(floor_00, drawX, drawY);
 								}else{
 									drawTile(floor_01, drawX, drawY);
@@ -660,15 +636,24 @@
 							case -1:
 								drawTile(board_tile, drawX, drawY);
 								drawTile(apple, drawX, drawY);
+								player.goalMet = false;
 								break;
 							case -3:
 								ctx.fillStyle = COLOR.SKY;
 								ctx.fillRect(drawX, drawY, TILE, TILE);
 								drawCoin(ctx, drawX, drawY);
 								break;
+							case -9:
+								drawTile(apple, drawX, drawY);
+								break;
 						};
 					};
 				};
+			};
+			
+			if(player.goalMet){
+				currentLevel[2][13] = -9;
+//				drawTile(apple, t2p(13), t2p();
 			};
 		};
 
@@ -728,7 +713,7 @@
 			for(i=0;i<player.length;i++){
 				//console.log(player.x[i]);
 				//console.log(player.y[i] + 1);
-				if(level001[player.y[i] + 1][player.x[i]] > 0){
+				if(currentLevel[player.y[i] + 1][player.x[i]] > 0){
 					player.falling=false;
 				};
 				
@@ -762,23 +747,23 @@
 		function playerCanMove(){
 			switch(player.face){
 				case "left":
-					if(level001[player.y[0]][player.x[0] - 1] < 1 && !isTileTail(player.y[0], player.x[0] - 1)){
+					if(currentLevel[player.y[0]][player.x[0] - 1] < 1 && !isTileTail(player.y[0], player.x[0] - 1)){
 						return true;
 					};
 					break;
 				case "right":	
-					if(level001[player.y[0]][player.x[0] + 1] < 1 && !isTileTail(player.y[0], player.x[0] + 1)){
+					if(currentLevel[player.y[0]][player.x[0] + 1] < 1 && !isTileTail(player.y[0], player.x[0] + 1)){
 						return true;
 					}; 
 					break;
 				case "down":
-					if(level001[player.y[0]+1][player.x[0]] < 1 && !isTileTail(player.y[0]+1, player.x[0])){
+					if(currentLevel[player.y[0]+1][player.x[0]] < 1 && !isTileTail(player.y[0]+1, player.x[0])){
 						return true;
 					};
 					break;
 				case "up":	
 					if(player.y[0]>0){	
-						if(level001[player.y[0]-1][player.x[0]] < 1 && !isTileTail(player.y[0]-1, player.x[0])){
+						if(currentLevel[player.y[0]-1][player.x[0]] < 1 && !isTileTail(player.y[0]-1, player.x[0])){
 							return true;
 						};
 					};
@@ -822,9 +807,11 @@
 				
 				player.moving = false;
 			};
-			if(level001[player.y[0]][player.x[0]] === -1){
+			
+			//Collect apples
+			if(currentLevel[player.y[0]][player.x[0]] === -1 || currentLevel[player.y[0]][player.x[0]] === -9){
 				player.length+=1;
-				level001[player.y[0]][player.x[0]] = -2;
+				currentLevel[player.y[0]][player.x[0]] = -2;
 			};
 			
 		};
