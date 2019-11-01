@@ -11,13 +11,7 @@
 				margin-left: 0px;
 				margin-top:  0px; 
 			}
-			miniCanvas {
-				width: 1024px;
-				height: 648px;
-				
-				margin-left: 0px;
-				margin-top:  0px; 
-			}
+			
 		</style>
 	</head>
 	<body>
@@ -25,13 +19,10 @@
 		<canvas id="levelCanvas" width="1024" height="648" style="border:0px solid #FF0000;">
 		Guttted mush, your browser's pants.
 		</canvas> 
-		<canvas id="miniCanvas" width="32" height="20" style="border:0px solid #FF0000;display:none">
-		Guttted mush, your browser's pants.
-		</canvas> 
 		</div>
 		
 		<!-- We need to load images this way for the LMS to load them in the right folder-->
-		<img id="level000" width="32" height="20" src="images/level000.png" alt="level000" style="display:none">
+		<img id="level000" width="32" height="20" src="level000.png" alt="level000" style="display:none">
 
 		<img id="floor_tile_00" width="32" height="32" src="images/floor_tile_00.png" alt="floor_tile_00" style="display:none">
 		<img id="floor_tile_01" width="32" height="32" src="images/floor_tile_01.png" alt="floor_tile_01" style="display:none">
@@ -77,10 +68,6 @@
 			width   	= canvas.width  = MAP.tileX * TILE,
 			height  	= canvas.height = MAP.tileY * TILE;	
 		
-		var miniCanvas	= document.getElementById('miniCanvas'),
-			miniCtx    	= canvas.getContext('2d');
-			//width    	= canvas.width  = 32,
-			//height   	= canvas.height = 20;
 			
 		var t2p      	= function(t)     {return t*TILE;                  },
 			p2t      	= function(p)     {return Math.floor(p/TILE);      },
@@ -107,6 +94,7 @@
 		var santa_feet_up 	= document.getElementById('santa_feet_up');
 		var log_tile 		= document.getElementById('log_tile');
 		var board_tile 		= document.getElementById('board_tile');
+		var level000 		= document.getElementById('level000');
 		var coincount		= 0;
 		var frameDelay 		= 0;
 		var levelX 			= 0;
@@ -162,32 +150,40 @@
 			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01]
 		];
 
-		currentLevel = loadLevel();
 		
-		function loadLevel(){
-			miniCtx.drawImage(level000, 0, 0);
-			var imgData = miniCtx.getImageData(0, 0, 20, 32);
+		var currentLevel = new Array();
+		
+		level000.crossOrigin = "anonymous";
+		
+		function loadLevel(inputImage){
+			inputImage.crossOrigin = "anonymous";
+			inputImage.onload = function(){
+				ctx.drawImage(inputImage, 0,0);
+			};
+			var imgData = ctx.getImageData(0, 0, 20, 32);
+					
+			console.log(imgData.data);
+			
+			
 			var levelToReturn = new Array();
-			for(i=0;i<miniCanvas.height;i++){
+			for(i=0;i<20;i++){
 				levelToReturn[i] = new Array();
-				for(j=0;j<miniCanvas.width;j++){
-					//r = imgData.data[i*j];
-					//r = imgData.data[i*j];
-					//g = imgData.data[i*j+1];
-					//g = imgData.data[i*j+1];
-					//b = imgData.data[i*j+2];
-					//b = imgData.data[i*j+2];
-					//a = imgData.data[i*j+3];
-					//a = imgData.data[i*j+3];
-					console.log(imgData.data);
-					levelToReturn[i][j] = imgData.data[ximiniCanvas.width+j*i];
+				for(j=0;j<32;j++){
+					r = imgData.data[i*j];
+					g = imgData.data[i*j+1];
+					b = imgData.data[i*j+2];
+					a = imgData.data[i*j+3];
+					//levelToReturn[i][j] = imgData.data[i*32+j*i];
+					levelToReturn[i][j] = 0;
 				};
 			};
-			
+				
 			return levelToReturn;
 		};
-				
-		var levelXSize 		= t2p(currentLevel[1].length);
+		
+		
+					
+		var levelXSize 		= TILE;
 
 				
 		if (!window.requestAnimationFrame) {
@@ -226,7 +222,6 @@
 			}
 		};
 		
-					
 		function updateEntity(entity, ctx){
 			if(entity.y > height){
 				entity.alive = false;
@@ -644,7 +639,7 @@
 								drawCoin(ctx, drawX, drawY);
 								break;
 							case -9:
-								drawTile(apple, drawX, drawY);
+								drawTile(level000, drawX, drawY);
 								break;
 						};
 					};
@@ -693,7 +688,8 @@
 				
 		function update(dt){
 			//drawNoise();
-			drawLevel(ctx, dt);
+			currentLevel = loadLevel(level000);
+			//drawLevel(ctx, dt);
 			updateEntity(player, ctx)
 			//for(i=0;i<baddies.length;i++)
 			//	updateEntity(baddies[i], ctx)
@@ -708,7 +704,7 @@
 			//Set falling to true, then check for any supporting tiles
 			player.falling = true;
 			
-			
+			a
 			//if there are any tiles under the snake then it isn't falling
 			for(i=0;i<player.length;i++){
 				//console.log(player.x[i]);
