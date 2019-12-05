@@ -19,28 +19,23 @@
 		<canvas id="levelCanvas" width="1024" height="648" style="border:0px solid #FF0000;">
 		Guttted mush, your browser's pants.
 		</canvas> 
+		<button type="button">UP</button>
 		</div>
-		
-		<!-- We need to load images this way for the LMS to load them in the right folder-->
-		<img id="level000" width="32" height="20" src="level000.png" alt="level000" style="display:none">
 
+		<!-- We need to load images this way for the LMS to load them in the right folder-->
 		<img id="floor_tile_00" width="32" height="32" src="images/floor_tile_00.png" alt="floor_tile_00" style="display:none">
 		<img id="floor_tile_01" width="32" height="32" src="images/floor_tile_01.png" alt="floor_tile_01" style="display:none">
 		<img id="hit_box" width="32" height="32" src="images/hit_box.png" alt="hit_box"style="display:none">
 		<img id="deano" width="32" height="64" src="images/deano_walk.gif" alt="it's only flippin' Deano!" style="display:none">
-		<img id="deano_walk" width="32" height="64" src="images/deano_spritesheet.png" alt="it's only flippin' Deano! Now he's only bloody walkin'!" style="display:none">
-		<img id="crab_apple" width="64" height="84" src="images/apple_rick_large.png" alt="uhhh..." style="display:none">
 		<img id="coin" width="320" height="32" src="images/coin_spritesheet.png" alt="coin" style="display:none">
-		<img id="mountains" width="1728" height="648" src="images/mountains_3d.png" alt="mountains" style="display:none">
-		<img id="hills" width="5000" height="648" src="images/hills_3d.png" alt="hills" style="display:none">
 		<img id="sky" width="800" height="648" src="images/sky.jpg" alt="sky" style="display:none">
-		<img id="cloud" width="766" height="167" src="images/cloud.png" alt="cloud" style="display:none">
 		<img id="dead" src="images/dead.png" alt="dead" style="display:none">
 		<img id="apple" src="images/apple.png" alt="dead" style="display:none">
 		<img id="santa_head_up" src="images/santa_head_up.png" alt="santa" style="display:none">
 		<img id="santa_arms_up" src="images/santa_arms_up.png" alt="santa" style="display:none">
 		<img id="santa_torso_up" src="images/santa_torso_up.png" alt="santa" style="display:none">
 		<img id="santa_corner" src="images/santa_torso_corner.png" alt="santa" style="display:none">
+		<img id="help" src="images/help.png" alt="help" style="display:none">
 		<img id="santa_feet_up" src="images/santa_feet_up.png" alt="santa" style="display:none">
 		<img id="log_tile" src="images/log.png" alt="logTile" style="display:none">
 		<img id="board_tile" src="images/boards.png" alt="boardTile" style="display:none">
@@ -92,6 +87,7 @@
 		var santa_arms_up 	= document.getElementById('santa_arms_up');
 		var santa_corner 	= document.getElementById('santa_corner');
 		var santa_feet_up 	= document.getElementById('santa_feet_up');
+		var help 			= document.getElementById('help');
 		var log_tile 		= document.getElementById('log_tile');
 		var board_tile 		= document.getElementById('board_tile');
 		var level000 		= document.getElementById('level000');
@@ -99,12 +95,13 @@
 		var frameDelay 		= 0;
 		var levelX 			= 0;
 		var cloudX 			= 1024;
+		var level			= 1;
 		
-		var player 			= {	goalMet:true, x:[], y:[], moving:false, face:"left", length:3, alive:true,frame:0, height:64, width:32, jump:false, fall: false};
+		var player 			= {	goalMet:true, x:[], y:[], moving:false, face:"left", length:3, alive:true,frame:0, height:64, width:32, jump:false, fall: false, stuck: false};
 		var santa			= {image:coin, x:1, y:1, length:2, alive:true};
 		var clouds 			= {x:0,y:0,speed:10};
 
-		var level001 = [
+		const level001 = [
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
@@ -127,7 +124,7 @@
 			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,-2,01]
 		];		
 
-		var level002 = [
+		const level002 = [
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00],
@@ -149,42 +146,36 @@
 			[00,01,00,01,00,01,00,01,00,01,02,-1,-2,-2,01,-2,01,-2,-2,-1,02,00,00,00,00,00,00,00,00,00,00,00],
 			[01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01,01]
 		];
-
 		
-		var currentLevel = new Array();
-		
-		level000.crossOrigin = "anonymous";
-		
-		function loadLevel(inputImage){
-			inputImage.crossOrigin = "anonymous";
-			inputImage.onload = function(){
-				ctx.drawImage(inputImage, 0,0);
-			};
-			var imgData = ctx.getImageData(0, 0, 20, 32);
-					
-			console.log(imgData.data);
-			
-			
-			var levelToReturn = new Array();
-			for(i=0;i<20;i++){
-				levelToReturn[i] = new Array();
-				for(j=0;j<32;j++){
-					r = imgData.data[i*j];
-					g = imgData.data[i*j+1];
-					b = imgData.data[i*j+2];
-					a = imgData.data[i*j+3];
-					//levelToReturn[i][j] = imgData.data[i*32+j*i];
-					levelToReturn[i][j] = 0;
-				};
-			};
-				
-			return levelToReturn;
+		function jsonCopy(src) {
+			return JSON.parse(JSON.stringify(src));
 		};
 		
-		
-					
-		var levelXSize 		= TILE;
+		var currentLevel;
 
+		function initPlayer(startX){
+			player.length = 3;
+			
+			for(i=0;i<player.length;i++){
+				player.x[i] = startX;
+				player.y[i] = i;
+			};
+		};
+		function setLevel(){
+			
+			switch(level){
+			 case 1:
+				initPlayer(8);
+				currentLevel = jsonCopy(level001);break;
+			case 2:
+				initPlayer(14);
+				currentLevel = jsonCopy(level002);break;
+			};
+		};
+		
+		setLevel();
+
+		var levelXSize 		= TILE;
 				
 		if (!window.requestAnimationFrame) {
 			window.requestAnimationFrame = window.webkitRequestAnimationFrame || 
@@ -195,23 +186,7 @@
 					window.setTimeout(callback, 1000 / 60);
 			}
 		}
-		
 
-		
-		function initPlayer(){
-			//player.x = 3 * TILE;
-			//player.y = 14 * TILE;
-			
-			for(i=0;i<player.length;i++){
-				player.x[i] = 8;
-				player.y[i] = i;
-			};
-			
-			
-			
-		};
-		
-		initPlayer();
 		
 		function drawTile(sourceImage, x, y){
 			if(sourceImage.complete){
@@ -262,64 +237,53 @@
 		function drawPlayer(){
 			for(i=player.length-1;i>=0;i--){
 				switch(i){
-					
 					//head
 					case 0:
 						//rightway up
 						if(player.y[1] === player.y[i]+1){
 							ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);	
-							
 							break;
 						}
-						
 						//upside down
 						if(player.y[1] === player.y[i]-1){
-							//ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
-							//mirrorImage(ctx, entity, true, false, entity.frame);
-						
 							flipImage(santa_head_up, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
-						
 						//face left
 						if(player.x[1] === player.x[i]+1){
-							//rotateImage(santa_head_up, player.x[i]*32, player.y[i]*32, 1, 45);
 							flipImage(santa_head_up, ctx, 'left', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
-
 						//face right
 						if(player.x[1] === player.x[i]-1){
-							//rotateImage(santa_head_up, player.x[i]*32, player.y[i]*32, 1, 45);
 							flipImage(santa_head_up, ctx, 'right', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
+						if(player.stuck){
+							console.log("stuck");
+							drawTile(help, 1, 1);
+						};
 
-						//drawTile(santa_head_up, player.x[i], player.y[i]*32);
+						
 						break;
 						
 					//feet
 					case player.length - 1:
 						//upside down
 						if(player.y[i-1] === player.y[i]+1){
-							//ctx.drawImage(santa_head_up, player.width*player.frame,0,player.width,player.height,player.x[i]*32,player.y[i]*32,player.width,player.height);
-							//mirrorImage(ctx, entity, true, false, entity.frame);
 							flipImage(santa_feet_up, ctx, 'down', t2p(player.x[i]),t2p(player.y[i]));
 							break;
 						}
-						
 						//right
 						if(player.x[i-1] === player.x[i]+1){
 							flipImage(santa_feet_up, ctx, 'right', player.x[i]*32,player.y[i]*32);
 							break;
 						};
-						
 						//left
 						if(player.x[i-1] === player.x[i]-1){
 							flipImage(santa_feet_up, ctx, 'left', player.x[i]*32,player.y[i]*32);
 							break;
 						};
-												
 						ctx.drawImage(santa_feet_up, player.width*player.frame,0,player.width,player.height,t2p(player.x[i]),t2p(player.y[i]),player.width,player.height);
 						//drawTile(santa_feet_up, player.x[i], player.y[i]);
 						break;
@@ -356,15 +320,9 @@
 								  let below 	= false;
 								  let left 	= false;
 								  let right 	= false;
-
-								  //console.log("y[i]-1: " + (player.y[i]-1));
-								  //console.log("y[i-1]: " + (player.y[i-1]));
-								  //console.log(x0,y,y3	
-
 								  //check if the prev/next snake segment is above
 								  let tileX = player.x[i];
 								  let tileY = player.y[i];
-
 								  //ABOVE
 								  if(tileY - 1 === player.y[i-1] && tileX === player.x[i-1])
 										  above = true; //head above current segment
@@ -391,8 +349,6 @@
 								  if(tileX + 1 === player.x[i+1] && tileY === player.y[i+1])
 									  right = true; // console.log("head left of current segment");
 
-								  ////if(locations != ("top:"+top+", bottom:"+bottom+", left:"+left+", right:"+right))
-								  //console.log("i:"+i+", above:"+above+", below:"+below+", left:"+left+", right:"+right);
 
 							if(above && right){
 								//this is top right
@@ -458,11 +414,6 @@
 					break;
 
 			};
-					
-			
-				//ctx.scale(scaleH, scaleV); // Set scale to flip the image
-				//ctx.drawImage(image,posX + x, posY - y, TILE, TILE); // draw the image
-			//ctx.drawImage(image, player.width,0,32,32,player.x[0]*32,player.y[0]*32,player.width,player.height);
 			ctx.restore(); // Restore the last saved state
 		};
 
@@ -478,14 +429,11 @@
 			var b = 0; 
 			var c = 0;
 			var d = vertical ? -1 : 1; //// set the direction of y axis
-//			var e = x + horizontal ? image.width : 0; // set the x origin
-//			var f = y + vertical ? image.height : 0 ; // set the y origin
 			var e = horizontal ? x + entity.width : x; // set the x origin
 			var f = vertical   ? y + entity.height: y; // set the y origin
 			
 			
 			ctx.setTransform(a,b,c,d,e,f);
-			//ctx.drawImage(image,0,0);
 			ctx.drawImage(image, entity.width*frame,0,entity.width,entity.height,0,0,entity.width,entity.height);
 			ctx.restore(); // restore the state as it was when this function was called
 		};		
@@ -572,28 +520,7 @@
 			
 			drawTile(sky, 0, 0);
 			
-			//Draw Background (This is a mess)
-			//TODO make this bit sane
-			
 			var bg_width = 5000;
-			
-			//drawTile(mountains, levelX/4, 0);
-			//drawTile(mountains, levelX/4+bg_width, 0);
-			//drawTile(mountains, levelX/4+bg_width+bg_width, 0);
-			//drawTile(hills, levelX/1.5, 0);
-			//drawTile(hills, levelX/1.5+bg_width, 0);
-			//drawTile(hills, levelX/1.5+bg_width+bg_width, 0);
-			//drawTile(hills, levelX/1.5+bg_width+bg_width+bg_width, 0);
-			//drawTile(hills, levelX/1.5+bg_width+bg_width+bg_width+bg_width, 0);
-			//
-			//
-			//drawRain(ctx);
-
-			//Draw Clouds
-			//drawTile(cloud, --cloudX, 20);
-			if(cloudX < -766){
-				cloudX = 1300;
-			};
 			
 			player.goalMet = true;
 			
@@ -639,7 +566,7 @@
 								drawCoin(ctx, drawX, drawY);
 								break;
 							case -9:
-								drawTile(level000, drawX, drawY);
+								drawTile(apple, drawX, drawY);
 								break;
 						};
 					};
@@ -648,13 +575,14 @@
 			
 			if(player.goalMet){
 				currentLevel[2][13] = -9;
-//				drawTile(apple, t2p(13), t2p();
+				drawTile(apple, t2p(13), t2p());
 			};
 		};
 
 		var inLMS = true;
 		
 		try{ trivPageScope; }
+		
 		catch(e) {
 			if(e.name == "ReferenceError") {
 				inLMS = false;
@@ -668,47 +596,57 @@
 			console.log("in lectora");
 			var thePage = document.getElementById('pageDIV');
 			console.log("does the page work? = " + thePage);
-			thePage.addEventListener('keydown', function(ev) { return onkey(ev, ev.keyCode, true);  }, false);
-			thePage.addEventListener('keyup',   function(ev) { return onkey(ev, ev.keyCode, false); }, false);
-
+			document.addEventListener('keydown', function(ev) { return onkey(ev, ev.keyCode, true);  }, false);
+			document.addEventListener('keyup',   function(ev) { return onkey(ev, ev.keyCode, false); }, false);
 		};
 		
 		function onkey(ev, key, down) {
 			if(down){
 				switch(key) {
-					case KEY.LEFT:  player.moving = true; player.face = "left";	/*console.log("you pressed the left key, player x:"+player.x)*/	;break;
-					case KEY.RIGHT: player.moving = true; player.face = "right";/*console.log("you pressed the right key, player x:"+player.x)*/;break;
-					case KEY.UP: 	player.moving = true; player.face = "up";	/*console.log("you pressed the left key, player x:"+player.x)*/	;break;
-					case KEY.DOWN: 	player.moving = true; player.face = "down";	/*console.log("you pressed the right key, player x:"+player.x)*/;break;
+					case KEY.LEFT:  player.moving = true; player.face = "left";	/*console.log("you pressed the left key, player x:"+player.x)	*/;break;
+					case KEY.RIGHT: player.moving = true; player.face = "right";/* console.log("you pressed the right key, player x:"+player.x) */;break;
+					case KEY.UP: 	player.moving = true; player.face = "up";	/*console.log("you pressed the left key, player x:"+player.x)	*/;break;
+					case KEY.DOWN: 	player.moving = true; player.face = "down";	/*console.log("you pressed the right key, player x:"+player.x)	*/;break;
 				};
 			}else{
 				player.moving =  false;
 			};
 		};
-				
-		function update(dt){
-			//drawNoise();
-			currentLevel = loadLevel(level000);
-			//drawLevel(ctx, dt);
-			updateEntity(player, ctx)
-			//for(i=0;i<baddies.length;i++)
-			//	updateEntity(baddies[i], ctx)
+		
+		var prevDirection;
+		var prevTime;
+		
+		function handleMovement(){
+		
+			var currDirection = VarDirection.getValue();
+			
+			if(currDirection != prevDirection || timestamp() > prevTime + 1000){
+				switch(currDirection) {
+					case 'left':  	player.moving = true; player.face = 'left';		break;
+					case 'right': 	player.moving = true; player.face = 'right'; 	break;
+					case 'up': 		player.moving = true; player.face = 'up';		break;
+					case 'down': 	player.moving = true; player.face = 'down';		break;
+					default: 		player.moving = false;							break;
+				};
+			};
+			prevDirection 	= currDirection;
+			prevTime		= timestamp();
 		};
-
-
-		function aldronKeyUp(){
-			player.moving = false;
+					
+		function update(dt){
+			drawLevel(ctx, dt);
+			//if(inLMS){
+			//	handleMovement();
+			//};
+			updateEntity(player, ctx)
 		};
 		
 		function isFalling(){
 			//Set falling to true, then check for any supporting tiles
 			player.falling = true;
 			
-			a
 			//if there are any tiles under the snake then it isn't falling
 			for(i=0;i<player.length;i++){
-				//console.log(player.x[i]);
-				//console.log(player.y[i] + 1);
 				if(currentLevel[player.y[i] + 1][player.x[i]] > 0){
 					player.falling=false;
 				};
@@ -740,8 +678,8 @@
 			return false;
 		};
 		
-		function playerCanMove(){
-			switch(player.face){
+		function playerCanMove(playerDirection){
+			switch(playerDirection){
 				case "left":
 					if(currentLevel[player.y[0]][player.x[0] - 1] < 1 && !isTileTail(player.y[0], player.x[0] - 1)){
 						return true;
@@ -766,53 +704,51 @@
 					break;
 			};
 			return false;
-			
 		};
-		
 		function movePlayer(){	
-
+			if(!playerCanMove('left') && !playerCanMove('right') && !playerCanMove('up') && !playerCanMove('down')){
+				player.stuck = true;
+			}else{
+				player.stuck = false;
+			};
 			isFalling();
-		
-			if(player.moving &&  !isFalling()){
-
-
-				switch(player.face){
-					case "left":
-						if(playerCanMove()){
-							tail();
-							player.x[0]-=1; 
-						};
-						break;
-					case "right":	
-						if(playerCanMove()){
-							tail();
-							player.x[0]+=1;							
-						}; 
-						break;
-					case "down":
-						if(playerCanMove()){
-							tail();player.y[0]+=1; break;
-						};
-					case "up":
-						if(playerCanMove()){
-							tail();player.y[0]-=1; break;
-						};
+				if(player.moving &&  !isFalling()){
+					switch(player.face){
+						case "left":
+							if(playerCanMove(player.face)){
+								tail();
+								player.x[0]-=1; 
+							};
+							break;
+						case "right":	
+							if(playerCanMove(player.face)){
+								tail();
+								player.x[0]+=1;							
+							}; 
+							break;
+						case "down":
+							if(playerCanMove(player.face)){
+								tail();player.y[0]+=1; break;
+							};
+						case "up":
+							if(playerCanMove(player.face)){
+								tail();player.y[0]-=1; break;
+							};
+					};
+					player.moving = false;
 				};
-				
-				
-				
-				player.moving = false;
-			};
-			
-			//Collect apples
-			if(currentLevel[player.y[0]][player.x[0]] === -1 || currentLevel[player.y[0]][player.x[0]] === -9){
-				player.length+=1;
-				currentLevel[player.y[0]][player.x[0]] = -2;
-			};
-			
+				//Collect apples
+				if(currentLevel[player.y[0]][player.x[0]] === -1 || currentLevel[player.y[0]][player.x[0]] === -9){
+					player.length+=1;
+					if(currentLevel[player.y[0]][player.x[0]] === -1){
+						currentLevel[player.y[0]][player.x[0]] = -2;
+					};
+					if(currentLevel[player.y[0]][player.x[0]] === -9){
+						level = 2;
+						setLevel();
+					};
+				};
 		};
-		
-		
 		</script>
 	</body>
 </html>
